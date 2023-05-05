@@ -1,0 +1,41 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: guestbook-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - hosts:
+        - guestbook.antonline.co.uk
+      port:
+        name: https
+        number: 443
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: wildcard-antline-co-uk-tls
+    - hosts:
+       - guestbook.antonline.co.uk
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+      tls:
+        httpsRedirect: true
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: guestbook-vs
+spec:
+  gateways:
+    - guestbook-gateway
+  hosts:
+    - guestbook.antonline.co.uk
+  http:
+    - route:
+      - destination:
+          host: guestbook-ui
+          port:
+            number: 80
